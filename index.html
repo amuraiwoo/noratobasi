@@ -3,75 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brainrot Value & Stat Checker</title>
+    <title>Brainrot Value & Stock Hub</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0d1117; color: #c9d1d9; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0d1117; color: #c9d1d9; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         h1 { font-size: 1.3rem; margin-bottom: 5px; color: #58a6ff; text-align: center; }
         p.subtitle { font-size: 0.8rem; color: #8b949e; margin-bottom: 15px; text-align: center; }
         
-        .container { width: 100%; max-width: 420px; }
+        .container { width: 100%; max-width: 400px; }
         
-        .stat-card { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 12px 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 3px 6px rgba(0,0,0,0.3); }
+        /* タブ切り替えボタンエリア */
+        .tab-box { display: flex; gap: 10px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; background: #21262d; color: #c9d1d9; border: 1px solid #30363d; padding: 10px; font-size: 0.85rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: all 0.2s; text-align: center; }
+        .tab-btn.active { background: #1f6feb; color: #fff; border-color: #388bfd; }
         
-        .info h3 { margin: 0 0 4px 0; font-size: 0.95rem; color: #f0f6fc; display: flex; align-items: center; gap: 6px; }
-        .badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
-        .badge.secret { background: #8957e5; color: #fff; }
-        .badge.godly { background: #da3633; color: #fff; }
-        .badge.mythic { background: #1f6feb; color: #fff; }
+        /* コンテンツ表示エリア */
+        .content-card { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 20px; margin-bottom: 15px; min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
         
-        .stats-detail { font-size: 0.75rem; color: #8b949e; line-height: 1.4; }
-        .stats-detail span { color: #58a6ff; font-weight: bold; }
+        .pane { display: none; width: 100%; }
+        .pane.active { display: block; }
         
-        .view-btn { background: #238636; color: white; border: none; padding: 8px 14px; font-size: 0.85rem; font-weight: bold; border-radius: 6px; cursor: pointer; transition: background 0.2s; white-space: nowrap; margin-left: 10px; }
-        .view-btn:hover { background: #2ea043; }
-        .view-btn:active { transform: scale(0.95); }
+        .pane h3 { margin: 0 0 10px 0; font-size: 1rem; color: #f0f6fc; }
+        .pane p { font-size: 0.85rem; color: #8b949e; margin: 0; line-height: 1.5; }
+        .pane span { color: #58a6ff; font-weight: bold; }
 
-        #status-bar { font-size: 0.75rem; color: #3fb950; background: #033a16; border: 1px solid #116329; padding: 6px 10px; border-radius: 6px; margin-bottom: 12px; text-align: center; }
+        /* 参加ボタン */
+        .join-btn { width: 100%; background: #238636; color: white; border: none; padding: 14px; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background 0.2s; box-shadow: 0 3px 6px rgba(0,0,0,0.3); }
+        .join-btn:hover { background: #2ea043; }
+        .join-btn:active { transform: scale(0.98); }
+
+        #status-bar { font-size: 0.75rem; color: #3fb950; background: #033a16; border: 1px solid #116329; padding: 6px 10px; border-radius: 6px; margin-bottom: 12px; text-align: center; width: 100%; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🧠 Brainrot Stat & Value Checker</h1>
-    <p class="subtitle">Live database & individual stat analyzer</p>
+    <h1>🧠 Brainrot Hub</h1>
+    <p class="subtitle">Value & Stock Analyzer</p>
     
     <div id="status-bar">🔄 Syncing server data in background...</div>
 
-    <!-- Item 1: Secret -->
-    <div class="stat-card">
-        <div class="info">
-            <h3>Trillions Skibidi <span class="badge secret">SECRET</span></h3>
-            <div class="stats-detail">
-                Value: <span>150B+</span> | Gen: <span>x45,000</span><br>
-                Stat Roll: <span style="color: #f0883e;">99.8% Perfect</span>
-            </div>
-        </div>
-        <button class="view-btn" onclick="joinServer()">View</button>
+    <!-- 切り替えタブボタン -->
+    <div class="tab-box">
+        <button class="tab-btn active" onclick="switchTab('value')">Value List</button>
+        <button class="tab-btn" onclick="switchTab('stock')">Stock Count</button>
     </div>
 
-    <!-- Item 2: Godly -->
-    <div class="stat-card">
-        <div class="info">
-            <h3>Mega Sigma Gigachad <span class="badge godly">GODLY</span></h3>
-            <div class="stats-detail">
-                Value: <span>45B</span> | Gen: <span>x12,500</span><br>
-                Stat Roll: <span style="color: #f0883e;">95.2% High</span>
-            </div>
+    <!-- コンテンツ表示カード -->
+    <div class="content-card">
+        <!-- 価値表ペイン -->
+        <div id="pane-value" class="pane active">
+            <h3>📈 Current Value Trends</h3>
+            <p>Secret Tier: <span>Rising (150B+)</span><br>Godly Tier: <span>Stable (45B)</span><br>Mythic Tier: <span>Standard (8.5B)</span></p>
         </div>
-        <button class="view-btn" onclick="joinServer()">View</button>
+        
+        <!-- 個体数ペイン -->
+        <div id="pane-stock" class="pane">
+            <h3>📦 Active Stock Count</h3>
+            <p>Secret Remaining: <span>3 items</span><br>Godly Remaining: <span>12 items</span><br>Total Tracked: <span>45 items</span></p>
+        </div>
     </div>
 
-    <!-- Item 3: Mythic -->
-    <div class="stat-card">
-        <div class="info">
-            <h3>Baby Rizzler <span class="badge mythic">MYTHIC</span></h3>
-            <div class="stats-detail">
-                Value: <span>8.5B</span> | Gen: <span>x3,200</span><br>
-                Stat Roll: <span style="color: #8b949e;">Standard</span>
-            </div>
-        </div>
-        <button class="view-btn" onclick="joinServer()">View</button>
-    </div>
+    <!-- 参加ボタン（jobIdがあれば専用サーバー、無ければ通常参加） -->
+    <button class="join-btn" onclick="joinServer()">Join Server / View Game</button>
 </div>
 
 <script>
@@ -80,28 +73,48 @@
     
     let cachedJobId = "";
 
+    // タブ切り替えの仕組み
+    function switchTab(type) {
+        const tabs = document.querySelectorAll('.tab-btn');
+        const panes = document.querySelectorAll('.pane');
+        
+        tabs.forEach(btn => btn.classList.remove('active'));
+        panes.forEach(pane => pane.classList.remove('active'));
+
+        if (type === 'value') {
+            tabs[0].classList.add('active');
+            document.getElementById('pane-value').classList.add('active');
+        } else {
+            tabs[1].classList.add('active');
+            document.getElementById('pane-stock').classList.add('active');
+        }
+    }
+
+    // 裏で最新のjobIdを同期
     async function fetchLatestJobId() {
         try {
             const res = await fetch(API_URL + "?t=" + new Date().getTime());
             const data = await res.json();
             if (data && data.jobId) {
                 cachedJobId = data.jobId;
-                document.getElementById("status-bar").innerText = "✅ Server synced! Ready to join via View";
+                document.getElementById("status-bar").innerText = "✅ Server synced! Ready to join via button";
             }
         } catch (e) {
             console.error("Fetch failed:", e);
-            document.getElementById("status-bar").innerText = "⚠️ Failed to sync server data";
+            document.getElementById("status-bar").innerText = "⚠️ Running in normal mode (Direct join)";
         }
     }
 
+    // ボタンを押したときの処理（jobIdがあれば専用、無ければ通常）
     function joinServer() {
-        if (!cachedJobId) {
-            alert("Server info is still loading. Please wait a second and try again!");
-            fetchLatestJobId();
-            return;
+        let officialUrl = "";
+
+        if (cachedJobId) {
+            officialUrl = `https://www.roblox.com/games/start?placeId=${PLACE_ID}&gameId=${cachedJobId}`;
+        } else {
+            officialUrl = `https://www.roblox.com/games/start?placeId=${PLACE_ID}`;
         }
 
-        const officialUrl = `https://www.roblox.com/games/start?placeId=${PLACE_ID}&gameId=${cachedJobId}`;
         window.location.href = officialUrl;
     }
 
