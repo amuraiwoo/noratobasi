@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>pom00242 Auto Joiner</title>
+    <title>pom00242 自動合流</title>
     <style>
         body { font-family: sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .card { background: #1e1e1e; padding: 30px; border-radius: 12px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
@@ -25,24 +25,60 @@
 <script>
 async function autoJoin() {
     const statusDiv = document.getElementById("status");
+    const username = "pom00242";
 
     try {
-        // 裏側のAPIを自動で叩く
-        const response = await fetch('/api/track');
-        const data = await response.json();
+        // 1. CORSプロキシ経由でユーザー名からIDを検索
+        const searchUrl = `https://users.roblox.com/v1/users/search?keyword=${username}`;
+        const proxySearchUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(searchUrl)}`;
+        
+        const searchRes = await fetch(proxySearchUrl);
+        const searchJson = await searchRes.json();
+        const searchData = JSON.parse(searchJson.contents);
 
-        if (data.success && data.joinUrl) {
-            statusDiv.className = "success";
-            statusDiv.innerHTML = "サーバー発見！ロブロックスを起動します...";
-            
-            // 0.5秒後に自動でリンクへジャンプ（アプリが立ち上がる）
-            setTimeout(() => {
-                window.location.href = data.joinUrl;
-            }, 500);
-        } else {
+        const user = searchData.data?.find(u => u.name === username);
+        if (!user) {
             statusDiv.className = "error";
-            statusDiv.innerHTML = data.message || "現在ゲームに参加していません。";
+            statusDiv.innerHTML = "ユーザーが見つかりませんでした。";
+            return;
         }
+        const userId = user.id;
+
+        // 2. Presence APIでステータスを取得（POSTもプロキシ経由で中継）
+        const presenceTargetUrl = "https://presence.roblox.com/v1/presence/users";
+        const proxyPresenceUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(presenceTargetUrl)}`;
+        
+        const presenceRes = await fetch(proxyPresenceUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userIds: [userId] })
+        });
+        
+        if (!presenceRes.ok) {
+            throw new Error("Presence APIの取得に失敗しました");
+        }
+
+        const presenceData = await presenceRes.json();
+        const presence = presenceData.userPresences?.[0];
+
+        if (!presence || presence.userPresenceType !== 2 || !presence.placeId || !presence.gameId) {
+            statusDiv.className = "error";
+            statusDiv.innerHTML = "現在ゲームに参加していないか、非公開です。";
+            return;
+        }
+
+        const placeId = presence.placeId;
+        const jobId = presence.gameId;
+
+        // 3. 合流リンクへ自動ジャンプ
+        statusDiv.className = "success";
+        statusDiv.innerHTML = "サーバー発見！ロブロックスを起動します...";
+        
+        const joinUrl = `https://www.roblox.com/games/${placeId}/game?serverJobId=${jobId}`;
+        setTimeout(() => {
+            window.location.href = joinUrl;
+        }, 500);
+
     } catch (error) {
         statusDiv.className = "error";
         statusDiv.innerHTML = "通信エラーが発生しました。";
@@ -50,7 +86,7 @@ async function autoJoin() {
     }
 }
 
-// ページを開いた瞬間に自動で走る
+// ページを開いた瞬間に実行
 window.onload = autoJoin;
 </script>
 
