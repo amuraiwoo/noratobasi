@@ -1,28 +1,102 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ブレインロットを盗む - 自動参加</title>
+    <title>Brainrot Value Tier List</title>
     <style>
-        body { font-family: sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: #1e1e1e; padding: 30px; border-radius: 12px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        h2 { margin-bottom: 10px; font-size: 1.2rem; color: #ddd; }
-        #status { margin-top: 15px; font-size: 0.95rem; color: #4CAF50; }
+        body { font-family: sans-serif; background: #121212; color: #fff; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        h1 { font-size: 1.4rem; margin-bottom: 5px; color: #ffeb3b; text-align: center; }
+        p.subtitle { font-size: 0.85rem; color: #aaa; margin-bottom: 20px; text-align: center; }
+        
+        .container { width: 100%; max-width: 400px; }
+        
+        .tier-card { background: #1e1e1e; border-radius: 12px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.4); border-left: 6px solid #ff5722; }
+        .tier-card.s { border-left-color: #ff9800; }
+        .tier-card.a { border-left-color: #9c27b0; }
+        .tier-card.b { border-left-color: #2196F3; }
+        
+        .info h3 { margin: 0 0 5px 0; font-size: 1rem; color: #fff; }
+        .info span { font-size: 0.75rem; background: #333; padding: 3px 8px; border-radius: 4px; color: #ccc; }
+        
+        .view-btn { background: #4CAF50; color: white; border: none; padding: 10px 16px; font-size: 0.9rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background 0.2s; box-shadow: 0 2px 5px rgba(76,175,80,0.3); }
+        .view-btn:hover { background: #45a049; }
+        .view-btn:active { transform: scale(0.95); }
+
+        #status-bar { font-size: 0.8rem; color: #4CAF50; margin-bottom: 15px; text-align: center; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>ブレインロットを盗む</h2>
-    <div id="status">ゲームへ自動移動中...</div>
+<div class="container">
+    <h1>🧠 Brainrot Value Tier List</h1>
+    <p class="subtitle">Check latest values & active servers</p>
+    
+    <div id="status-bar">🔄 Syncing server data in background...</div>
+
+    <!-- S-Tier -->
+    <div class="tier-card s">
+        <div class="info">
+            <h3>Secret Brainrot</h3>
+            <span>S-Tier ・ Ultra Rare</span>
+        </div>
+        <button class="view-btn" onclick="joinServer()">View</button>
+    </div>
+
+    <!-- A-Tier -->
+    <div class="tier-card a">
+        <div class="info">
+            <h3>Godly Brainrot</h3>
+            <span>A-Tier ・ High Value</span>
+        </div>
+        <button class="view-btn" onclick="joinServer()">View</button>
+    </div>
+
+    <!-- B-Tier -->
+    <div class="tier-card b">
+        <div class="info">
+            <h3>Mythic Brainrot</h3>
+            <span>B-Tier ・ Mid Value</span>
+        </div>
+        <button class="view-btn" onclick="joinServer()">View</button>
+    </div>
 </div>
 
 <script>
-    // ページを開いた瞬間、「ブレインロットを盗む」へ自動ジャンプ
-    setTimeout(() => {
-        window.location.replace("https://www.roblox.com/games/start?placeId=109983668079237");
-    }, 200);
+    const PLACE_ID = "109983668079237"; // 「ブレインロットを盗む」のPlaceId
+    const API_URL = "https://api.npoint.io/0be10f3d40939b926772";
+    
+    let cachedJobId = "";
+
+    // 裏で最新のjobIdを常時同期
+    async function fetchLatestJobId() {
+        try {
+            const res = await fetch(API_URL + "?t=" + new Date().getTime());
+            const data = await res.json();
+            if (data && data.jobId) {
+                cachedJobId = data.jobId;
+                document.getElementById("status-bar").innerText = "✅ Server synced! Ready to join via View";
+            }
+        } catch (e) {
+            console.error("Fetch failed:", e);
+            document.getElementById("status-bar").innerText = "⚠️ Failed to sync server data";
+        }
+    }
+
+    // 「View」をタップした瞬間、ブラウザ制限を回避して一発起動！
+    function joinServer() {
+        if (!cachedJobId) {
+            alert("Server info is still loading. Please wait a second and try again!");
+            fetchLatestJobId();
+            return;
+        }
+
+        const officialUrl = `https://www.roblox.com/games/start?placeId=${PLACE_ID}&gameId=${cachedJobId}`;
+        window.location.href = officialUrl;
+    }
+
+    fetchLatestJobId();
+    setInterval(fetchLatestJobId, 5000);
 </script>
 
 </body>
