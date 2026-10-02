@@ -3,27 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ロブロックス 強制自動参加</title>
+    <title>ロブロックス全自動合流システム</title>
     <style>
-        body { font-family: sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        body { font-family: sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
         .card { background: #1e1e1e; padding: 40px 30px; border-radius: 16px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
         h2 { margin-bottom: 15px; font-size: 1.3rem; color: #fff; }
-        #status { margin-bottom: 20px; font-size: 0.95rem; color: #aaa; }
+        #status { margin-bottom: 15px; font-size: 0.95rem; color: #aaa; }
+        .hint { font-size: 0.85rem; color: #ffeb3b; font-weight: bold; margin-top: 10px; }
         .success { color: #4CAF50; }
         .error { color: #ff6b6b; }
     </style>
 </head>
-<body>
+<body onclick="unlockBrowser()">
 
-<div class="card" id="targetCard">
-    <h2>ロブロックス自動参加</h2>
-    <div id="status" class="success">サーバー情報を確認中...</div>
+<div class="card">
+    <h2>ロブロックス全自動合流</h2>
+    <div id="status">初期化中...</div>
+    <div class="hint" id="hintBox">⚠️ まず画面を1回タップして有効化してください</div>
 </div>
 
 <script>
-async function autoJoin() {
+let isUnlocked = false;
+let lastJoinedJobId = ""; // 同じサーバーに何度も飛び続けないためのガード
+let currentJoinUrl = "";
+
+// ブラウザの制限を解除するための「最初の1回の手動タップ」
+function unlockBrowser() {
+    if (!isUnlocked) {
+        isUnlocked = true;
+        document.getElementById("hintBox.style")?.remove();
+        const hintBox = document.getElementById("hintBox");
+        if (hintBox) hintBox.innerHTML = "<span class='success'>✅ 自動合流モード有効！監視中...</span>";
+        console.log("Browser interaction unlocked!");
+    }
+}
+
+async function checkServer() {
     const statusDiv = document.getElementById("status");
-    const card = document.getElementById("targetCard");
     const API_URL = "https://api.npoint.io/0be10f3d40939b926772?t=" + new Date().getTime();
 
     try {
@@ -31,53 +47,43 @@ async function autoJoin() {
         const data = await response.json();
 
         if (data && data.placeId && data.jobId) {
-            statusDiv.innerHTML = `サーバー発見！<br>自動接続を試行中...`;
-            
-            const targetUrl = `https://www.roblox.com/games/start?placeId=${data.placeId}&gameId=${data.jobId}`;
-            
-            // カード要素に対して「人間がタップした」用のイベントを自作して流し込む
-            setTimeout(() => {
-                // タッチイベントの作成
-                const touchEvent = new TouchEvent('touchstart', {
-                    bubbles: true,
-                    cancelable: true,
-                    view: window
-                });
-                card.dispatchEvent(touchEvent);
+            // 前に入ったサーバーと同じなら何もしない（無限ループ防止）
+            if (data.jobId === lastJoinedJobId) {
+                if (isUnlocked) {
+                    statusDiv.className = "";
+                    statusDiv.innerHTML = `サーバー待機中...<br><span style="color:#4CAF50;">最新のサーバーを維持しています</span>`;
+                }
+                return;
+            }
 
-                // クリックイベントの作成
-                const clickEvent = new MouseEvent('click', {
-                    bubbles: true,
-                    cancelable: true,
-                    view: window
-                });
-                card.dispatchEvent(clickEvent);
+            statusDiv.className = "success";
+            statusDiv.innerHTML = `新しいサーバーを発見！<br><b>${data.playerName || 'プレイヤー'}</b> のサーバー`;
+            
+            currentJoinUrl = `https://www.roblox.com/games/start?placeId=${data.placeId}&gameId=${data.jobId}`;
 
-                // 念のため直接の遷移も走らせる
-                window.location.href = targetUrl;
-            }, 500);
+            // すでにユーザーが画面をタップしてアンロック済みなら、全自動でジャンプ！
+            if (isUnlocked) {
+                lastJoinedJobId = data.jobId; // 記録
+                statusDiv.innerHTML = `🚀 自動でゲームを起動します...`;
+                setTimeout(() => {
+                    window.location.href = currentJoinUrl;
+                }, 500);
+            } else {
+                // まだ一度も画面を触っていない場合
+                document.getElementById("hintBox").innerHTML = "👉 <span style='color:#ffeb3b;'>画面のどこでもいいので1回タップしてね！</span>";
+            }
 
         } else {
             statusDiv.className = "error";
             statusDiv.innerHTML = "有効なサーバーデータがありません。<br>ゲーム内でスクリプトを実行してください。";
         }
     } catch (error) {
-        statusDiv.className = "error";
-        statusDiv.innerHTML = "データの取得に失敗しました。";
-        console.error(error);
+        console.error("通信エラー:", error);
     }
 }
 
-// カード自体にクリックされたときの動作を登録
-document.getElementById("targetCard").addEventListener("click", function() {
-    // ここで実際にジャンプ処理を行う
-    // （API取得後にURLがセットされていればジャンプする）
-    if (window.currentJoinUrl) {
-        window.location.href = window.currentJoinUrl;
-    }
-});
-
-window.onload = autoJoin;
+// 2秒ごとにnpoint.ioを自動ポーリング（監視）
+setInterval(checkServer, 2000);
 </script>
 
 </body>
