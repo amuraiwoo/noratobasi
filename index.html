@@ -3,32 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ロブロックス ワンタップ自動参加</title>
+    <title>ロブロックス ワンタップ参加</title>
     <style>
-        body { font-family: sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: #1e1e1e; padding: 40px 30px; border-radius: 16px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
+        body { font-family: sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .card { background: #1e1e1e; padding: 40px 30px; border-radius: 16px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.6); pointer-events: none; }
         h2 { margin-bottom: 15px; font-size: 1.3rem; color: #fff; }
-        #status { margin-bottom: 20px; font-size: 0.95rem; color: #aaa; }
-        .btn { background: #4CAF50; color: white; border: none; padding: 14px 20px; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; transition: background 0.2s; }
-        .btn:hover { background: #45a049; }
+        #status { margin-bottom: 10px; font-size: 0.95rem; color: #aaa; }
+        .hint { font-size: 0.85rem; color: #4CAF50; font-weight: bold; margin-top: 15px; }
         .error { color: #ff6b6b; }
     </style>
 </head>
-<body>
+<body onclick="joinGame()">
 
 <div class="card">
-    <h2>ロブロックス自動参加</h2>
+    <h2>ロブロックス直行パネル</h2>
     <div id="status">サーバー情報を確認中...</div>
-    <!-- 内部で自動的にクリックさせるボタン -->
-    <button class="btn" id="joinBtn" style="display:none;" onclick="joinGame()">ゲームに参加する</button>
+    <div class="hint" id="hintText" style="display:none;">画面のどこでもいいのでタップ！</div>
 </div>
 
 <script>
 let targetUrl = "";
+let isReady = false;
 
 async function fetchServer() {
     const statusDiv = document.getElementById("status");
-    const joinBtn = document.getElementById("joinBtn");
+    const hintText = document.getElementById("hintText");
     const API_URL = "https://api.npoint.io/0be10f3d40939b926772?t=" + new Date().getTime();
 
     try {
@@ -37,14 +36,11 @@ async function fetchServer() {
 
         if (data && data.placeId && data.jobId) {
             statusDiv.className = "";
-            statusDiv.innerHTML = `サーバー発見！<br><span style="color:#4CAF50;">自動で接続しています...</span>`;
+            statusDiv.innerHTML = `サーバー発見！<br><span style="color:#4CAF50;">準備完了しました</span>`;
             
             targetUrl = `https://www.roblox.com/games/start?placeId=${data.placeId}&gameId=${data.jobId}`;
-            
-            // データを取得したら、プログラム側から瞬時にボタンのクリックを自動実行する
-            setTimeout(() => {
-                joinBtn.click();
-            }, 300);
+            isReady = true;
+            hintText.style.display = "block";
         } else {
             statusDiv.className = "error";
             statusDiv.innerHTML = "有効なサーバーデータがありません。<br>ゲーム内でスクリプトを実行してください。";
@@ -57,7 +53,7 @@ async function fetchServer() {
 }
 
 function joinGame() {
-    if (targetUrl) {
+    if (isReady && targetUrl) {
         window.location.href = targetUrl;
     }
 }
