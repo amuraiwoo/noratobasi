@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ロブロックス自動参加</title>
+    <title>ブレインロットを盗む - 自動参加</title>
     <style>
         body { font-family: sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .card { background: #1e1e1e; padding: 30px; border-radius: 12px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
@@ -16,7 +16,7 @@
 <body>
 
 <div class="card">
-    <h2>ロブロックス自動参加</h2>
+    <h2>ブレインロットを盗む<br>自動参加システム</h2>
     <div id="status" class="success">サーバー情報を取得中...</div>
 </div>
 
@@ -25,16 +25,19 @@ async function autoJoin() {
     const statusDiv = document.getElementById("status");
     const API_URL = "https://api.npoint.io/0be10f3d40939b926772?t=" + new Date().getTime();
 
+    // 「ブレインロットを盗む」の固定PlaceId
+    const targetPlaceId = "109983668079237";
+
     try {
         const response = await fetch(API_URL);
         const data = await response.json();
 
-        if (data && data.placeId && data.jobId) {
+        if (data && data.jobId) {
             statusDiv.className = "success";
             statusDiv.innerHTML = `サーバー発見！<br>ゲームへ自動移動します...`;
             
-            // パラメータ名は公式の gameId にして、中身に jobId の値をぶち込む
-            const officialUrl = `https://www.roblox.com/games/start?placeId=${data.placeId}&gameId=${data.jobId}`;
+            // 固定のPlaceIdと、npointから取ったjobIdを組み合わせて公式URLを作成
+            const officialUrl = `https://www.roblox.com/games/start?placeId=${targetPlaceId}&gameId=${data.jobId}`;
             
             // データを取得したらそのまま自動ジャンプ
             setTimeout(() => {
