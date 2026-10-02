@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ロブロックス ワンタップ合流</title>
+    <title>ロブロックス ワンタップ自動参加</title>
     <style>
         body { font-family: sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .card { background: #1e1e1e; padding: 30px; border-radius: 12px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
@@ -16,15 +16,13 @@
 <body>
 
 <div class="card">
-    <h2>ロブロックス自動合流</h2>
-    <div id="status" class="success">サーバーを確認中...</div>
+    <h2>ロブロックス自動参加</h2>
+    <div id="status" class="success">サーバー情報を取得中...</div>
 </div>
 
 <script>
 async function autoJoin() {
     const statusDiv = document.getElementById("status");
-    
-    // URLの末尾に現在時刻（ランダムな数字）をつけて、キャッシュを絶対にさせないようにする
     const API_URL = "https://api.npoint.io/0be10f3d40939b926772?t=" + new Date().getTime();
 
     try {
@@ -33,12 +31,15 @@ async function autoJoin() {
 
         if (data && data.placeId && data.jobId) {
             statusDiv.className = "success";
-            statusDiv.innerHTML = `サーバー発見！<br>ロブロックスを起動します...`;
+            statusDiv.innerHTML = `サーバー発見！<br>ゲームへ自動参加します...`;
             
-            const joinUrl = `https://www.roblox.com/games/${data.placeId}/game?serverJobId=${data.jobId}`;
+            // Robloxのアプリを直接起動してJobIdを指定するスキーム
+            // （環境によって通常のhttpsリンクのほうが安定する場合はそちらでもOK）
+            const webJoinUrl = `https://www.roblox.com/games/${data.placeId}/game?serverJobId=${data.jobId}`;
+            
             setTimeout(() => {
-                window.location.href = joinUrl;
-            }, 400);
+                window.location.href = webJoinUrl;
+            }, 500);
         } else {
             statusDiv.className = "error";
             statusDiv.innerHTML = "有効なサーバーデータがありません。<br>ゲーム内でスクリプトを実行してください。";
