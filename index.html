@@ -3,43 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ロブロックス全自動合流システム</title>
+    <title>ロブロックス ワンタップ合流</title>
     <style>
-        body { font-family: sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        body { font-family: sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .card { background: #1e1e1e; padding: 40px 30px; border-radius: 16px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
         h2 { margin-bottom: 15px; font-size: 1.3rem; color: #fff; }
-        #status { margin-bottom: 15px; font-size: 0.95rem; color: #aaa; }
-        .hint { font-size: 0.85rem; color: #ffeb3b; font-weight: bold; margin-top: 10px; }
-        .success { color: #4CAF50; }
+        #status { margin-bottom: 20px; font-size: 0.95rem; color: #aaa; }
+        .btn { 
+            display: none; 
+            background: #4CAF50; 
+            color: white; 
+            text-decoration: none; 
+            padding: 16px 20px; 
+            font-size: 1.1rem; 
+            font-weight: bold; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.4);
+            transition: background 0.2s; 
+        }
+        .btn:hover { background: #45a049; }
         .error { color: #ff6b6b; }
     </style>
 </head>
-<body onclick="unlockBrowser()">
+<body>
 
 <div class="card">
-    <h2>ロブロックス全自動合流</h2>
-    <div id="status">初期化中...</div>
-    <div class="hint" id="hintBox">⚠️ まず画面を1回タップして有効化してください</div>
+    <h2>ロブロックス合流</h2>
+    <div id="status">サーバー情報を取得中...</div>
+    <!-- 公式のリンク形式がセットされるアンカータグ -->
+    <a id="joinBtn" class="btn" href="#" target="_blank">ゲームに参加する</a>
 </div>
 
 <script>
-let isUnlocked = false;
-let lastJoinedJobId = ""; // 同じサーバーに何度も飛び続けないためのガード
-let currentJoinUrl = "";
-
-// ブラウザの制限を解除するための「最初の1回の手動タップ」
-function unlockBrowser() {
-    if (!isUnlocked) {
-        isUnlocked = true;
-        document.getElementById("hintBox.style")?.remove();
-        const hintBox = document.getElementById("hintBox");
-        if (hintBox) hintBox.innerHTML = "<span class='success'>✅ 自動合流モード有効！監視中...</span>";
-        console.log("Browser interaction unlocked!");
-    }
-}
-
-async function checkServer() {
+async function loadServer() {
     const statusDiv = document.getElementById("status");
+    const joinBtn = document.getElementById("joinBtn");
     const API_URL = "https://api.npoint.io/0be10f3d40939b926772?t=" + new Date().getTime();
 
     try {
@@ -47,43 +45,27 @@ async function checkServer() {
         const data = await response.json();
 
         if (data && data.placeId && data.jobId) {
-            // 前に入ったサーバーと同じなら何もしない（無限ループ防止）
-            if (data.jobId === lastJoinedJobId) {
-                if (isUnlocked) {
-                    statusDiv.className = "";
-                    statusDiv.innerHTML = `サーバー待機中...<br><span style="color:#4CAF50;">最新のサーバーを維持しています</span>`;
-                }
-                return;
-            }
-
-            statusDiv.className = "success";
-            statusDiv.innerHTML = `新しいサーバーを発見！<br><b>${data.playerName || 'プレイヤー'}</b> のサーバー`;
+            statusDiv.className = "";
+            statusDiv.innerHTML = `サーバー発見！<br><span style="color:#4CAF50;">準備完了しました</span>`;
             
-            currentJoinUrl = `https://www.roblox.com/games/start?placeId=${data.placeId}&gameId=${data.jobId}`;
-
-            // すでにユーザーが画面をタップしてアンロック済みなら、全自動でジャンプ！
-            if (isUnlocked) {
-                lastJoinedJobId = data.jobId; // 記録
-                statusDiv.innerHTML = `🚀 自動でゲームを起動します...`;
-                setTimeout(() => {
-                    window.location.href = currentJoinUrl;
-                }, 500);
-            } else {
-                // まだ一度も画面を触っていない場合
-                document.getElementById("hintBox").innerHTML = "👉 <span style='color:#ffeb3b;'>画面のどこでもいいので1回タップしてね！</span>";
-            }
-
+            // 教えてくれた最強の公式リンク形式をそのままURLに組み立てる
+            const officialUrl = `https://www.roblox.com/games/start?placeId=${data.placeId}&gameId=${data.jobId}`;
+            
+            // ボタンのリンク先を書き換えて表示する
+            joinBtn.href = officialUrl;
+            joinBtn.style.display = "block";
         } else {
             statusDiv.className = "error";
             statusDiv.innerHTML = "有効なサーバーデータがありません。<br>ゲーム内でスクリプトを実行してください。";
         }
     } catch (error) {
-        console.error("通信エラー:", error);
+        statusDiv.className = "error";
+        statusDiv.innerHTML = "データの取得に失敗しました。";
+        console.error(error);
     }
 }
 
-// 2秒ごとにnpoint.ioを自動ポーリング（監視）
-setInterval(checkServer, 2000);
+window.onload = loadServer;
 </script>
 
 </body>
