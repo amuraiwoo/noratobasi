@@ -23,24 +23,22 @@
 <script>
 async function autoJoin() {
     const statusDiv = document.getElementById("status");
-    // キャッシュを無視して最新のJSONを取るおまじない
     const API_URL = "https://api.npoint.io/0be10f3d40939b926772?t=" + new Date().getTime();
 
     try {
         const response = await fetch(API_URL);
         const data = await response.json();
 
-        // data.jobId がちゃんと存在するかチェック
         if (data && data.placeId && data.jobId) {
             statusDiv.className = "success";
-            statusDiv.innerHTML = `サーバー発見！<br>ゲームへ自動参加します...`;
+            statusDiv.innerHTML = `サーバー発見！<br>直接起動します...`;
             
-            // 教えてくれた公式のstart形式に jobId を gameId として当てはめる
-            const joinUrl = `https://www.roblox.com/games/start?placeId=${data.placeId}&gameId=${data.jobId}`;
+            // roblox:// スキームを使うことで、ブラウザの中継ページを挟まずにダイレクト起動を狙う
+            const joinUrl = `roblox://navigation/game_launch?placeId=${data.placeId}&gameId=${data.jobId}`;
             
             setTimeout(() => {
                 window.location.href = joinUrl;
-            }, 400);
+            }, 300);
         } else {
             statusDiv.className = "error";
             statusDiv.innerHTML = "有効なサーバーデータがありません。<br>ゲーム内でスクリプトを実行してください。";
