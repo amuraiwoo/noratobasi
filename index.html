@@ -3,81 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>pom00242 自動合流</title>
+    <title>ロブロックス ワンタップ合流</title>
     <style>
         body { font-family: sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .card { background: #1e1e1e; padding: 30px; border-radius: 12px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         h2 { margin-bottom: 10px; font-size: 1.2rem; color: #ddd; }
-        .target { color: #4da6ff; font-weight: bold; margin-bottom: 20px; font-size: 1.1rem; }
         #status { margin-top: 15px; font-size: 0.95rem; color: #aaa; }
-        .error { color: #ff6b6b; }
         .success { color: #4CAF50; }
+        .error { color: #ff6b6b; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <h2>ロブロックス自動合流</h2>
-    <div class="target">pom00242 を追跡中...</div>
-    <div id="status">サーバーを確認しています...</div>
+    <div id="status" class="success">サーバーを確認中...</div>
 </div>
 
 <script>
 async function autoJoin() {
     const statusDiv = document.getElementById("status");
-    const username = "pom00242";
+    
+    // URLの末尾に現在時刻（ランダムな数字）をつけて、キャッシュを絶対にさせないようにする
+    const API_URL = "https://api.npoint.io/0be10f3d40939b926772?t=" + new Date().getTime();
 
     try {
-        // 1. ユーザー名からIDを検索（corsproxy.io経由）
-        const searchUrl = `https://users.roblox.com/v1/users/search?keyword=${username}`;
-        const searchRes = await fetch(`https://corsproxy.io/?${encodeURIComponent(searchUrl)}`);
-        const searchData = await searchRes.json();
+        const response = await fetch(API_URL);
+        const data = await response.json();
 
-        const user = searchData.data?.find(u => u.name === username);
-        if (!user) {
+        if (data && data.placeId && data.jobId) {
+            statusDiv.className = "success";
+            statusDiv.innerHTML = `サーバー発見！<br>ロブロックスを起動します...`;
+            
+            const joinUrl = `https://www.roblox.com/games/${data.placeId}/game?serverJobId=${data.jobId}`;
+            setTimeout(() => {
+                window.location.href = joinUrl;
+            }, 400);
+        } else {
             statusDiv.className = "error";
-            statusDiv.innerHTML = "ユーザーが見つかりませんでした。";
-            return;
+            statusDiv.innerHTML = "有効なサーバーデータがありません。<br>ゲーム内でスクリプトを実行してください。";
         }
-        const userId = user.id;
-
-        // 2. Presence APIでステータスを取得（POSTリクエスト）
-        const presenceUrl = "https://presence.roblox.com/v1/presence/users";
-        const presenceRes = await fetch(`https://corsproxy.io/?${encodeURIComponent(presenceUrl)}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userIds: [userId] })
-        });
-        
-        const presenceData = await presenceRes.json();
-        const presence = presenceData.userPresences?.[0];
-
-        if (!presence || presence.userPresenceType !== 2 || !presence.placeId || !presence.gameId) {
-            statusDiv.className = "error";
-            statusDiv.innerHTML = "現在ゲームに参加していないか、非公開です。";
-            return;
-        }
-
-        const placeId = presence.placeId;
-        const jobId = presence.gameId;
-
-        // 3. サーバー発見！自動でロブロックスを起動
-        statusDiv.className = "success";
-        statusDiv.innerHTML = "サーバー発見！ロブロックスを起動します...";
-        
-        const joinUrl = `https://www.roblox.com/games/${placeId}/game?serverJobId=${jobId}`;
-        setTimeout(() => {
-            window.location.href = joinUrl;
-        }, 500);
-
     } catch (error) {
         statusDiv.className = "error";
-        statusDiv.innerHTML = "通信エラーが発生しました。";
+        statusDiv.innerHTML = "データの取得に失敗しました。";
         console.error(error);
     }
 }
 
-// ページを開いた瞬間に自動実行
 window.onload = autoJoin;
 </script>
 
