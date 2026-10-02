@@ -28,13 +28,10 @@ async function autoJoin() {
     const username = "pom00242";
 
     try {
-        // 1. CORSプロキシ経由でユーザー名からIDを検索
+        // 1. ユーザー名からIDを検索（corsproxy.io経由）
         const searchUrl = `https://users.roblox.com/v1/users/search?keyword=${username}`;
-        const proxySearchUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(searchUrl)}`;
-        
-        const searchRes = await fetch(proxySearchUrl);
-        const searchJson = await searchRes.json();
-        const searchData = JSON.parse(searchJson.contents);
+        const searchRes = await fetch(`https://corsproxy.io/?${encodeURIComponent(searchUrl)}`);
+        const searchData = await searchRes.json();
 
         const user = searchData.data?.find(u => u.name === username);
         if (!user) {
@@ -44,20 +41,14 @@ async function autoJoin() {
         }
         const userId = user.id;
 
-        // 2. Presence APIでステータスを取得（POSTもプロキシ経由で中継）
-        const presenceTargetUrl = "https://presence.roblox.com/v1/presence/users";
-        const proxyPresenceUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(presenceTargetUrl)}`;
-        
-        const presenceRes = await fetch(proxyPresenceUrl, {
+        // 2. Presence APIでステータスを取得（POSTリクエスト）
+        const presenceUrl = "https://presence.roblox.com/v1/presence/users";
+        const presenceRes = await fetch(`https://corsproxy.io/?${encodeURIComponent(presenceUrl)}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ userIds: [userId] })
         });
         
-        if (!presenceRes.ok) {
-            throw new Error("Presence APIの取得に失敗しました");
-        }
-
         const presenceData = await presenceRes.json();
         const presence = presenceData.userPresences?.[0];
 
@@ -70,7 +61,7 @@ async function autoJoin() {
         const placeId = presence.placeId;
         const jobId = presence.gameId;
 
-        // 3. 合流リンクへ自動ジャンプ
+        // 3. サーバー発見！自動でロブロックスを起動
         statusDiv.className = "success";
         statusDiv.innerHTML = "サーバー発見！ロブロックスを起動します...";
         
@@ -86,7 +77,7 @@ async function autoJoin() {
     }
 }
 
-// ページを開いた瞬間に実行
+// ページを開いた瞬間に自動実行
 window.onload = autoJoin;
 </script>
 
