@@ -33,10 +33,10 @@ async function autoJoin() {
             statusDiv.className = "success";
             statusDiv.innerHTML = `サーバー発見！<br>ゲームへ自動移動します...`;
             
-            // 教えてくれた公式のstart?placeId=...&gameId=...形式でURLを完全自動構築
+            // パラメータ名は公式の gameId にして、中身に jobId の値をぶち込む
             const officialUrl = `https://www.roblox.com/games/start?placeId=${data.placeId}&gameId=${data.jobId}`;
             
-            // データを取得したら間髪入れずに自動ジャンプ
+            // データを取得したらそのまま自動ジャンプ
             setTimeout(() => {
                 window.location.replace(officialUrl);
             }, 200);
