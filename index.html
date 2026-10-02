@@ -8,53 +8,21 @@
         body { font-family: sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .card { background: #1e1e1e; padding: 30px; border-radius: 12px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         h2 { margin-bottom: 10px; font-size: 1.2rem; color: #ddd; }
-        #status { margin-top: 15px; font-size: 0.95rem; color: #aaa; }
-        .success { color: #4CAF50; }
-        .error { color: #ff6b6b; }
+        #status { margin-top: 15px; font-size: 0.95rem; color: #4CAF50; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>ブレインロットを盗む<br>自動参加システム</h2>
-    <div id="status" class="success">サーバー情報を取得中...</div>
+    <h2>ブレインロットを盗む</h2>
+    <div id="status">ゲームへ自動移動中...</div>
 </div>
 
 <script>
-async function autoJoin() {
-    const statusDiv = document.getElementById("status");
-    const API_URL = "https://api.npoint.io/0be10f3d40939b926772?t=" + new Date().getTime();
-
-    // 「ブレインロットを盗む」の固定PlaceId
-    const targetPlaceId = "109983668079237";
-
-    try {
-        const response = await fetch(API_URL);
-        const data = await response.json();
-
-        if (data && data.jobId) {
-            statusDiv.className = "success";
-            statusDiv.innerHTML = `サーバー発見！<br>ゲームへ自動移動します...`;
-            
-            // 固定のPlaceIdと、npointから取ったjobIdを組み合わせて公式URLを作成
-            const officialUrl = `https://www.roblox.com/games/start?placeId=${targetPlaceId}&gameId=${data.jobId}`;
-            
-            // データを取得したらそのまま自動ジャンプ
-            setTimeout(() => {
-                window.location.replace(officialUrl);
-            }, 200);
-        } else {
-            statusDiv.className = "error";
-            statusDiv.innerHTML = "有効なサーバーデータがありません。<br>ゲーム内でスクリプトを実行してください。";
-        }
-    } catch (error) {
-        statusDiv.className = "error";
-        statusDiv.innerHTML = "データの取得に失敗しました。";
-        console.error(error);
-    }
-}
-
-window.onload = autoJoin;
+    // ページを開いた瞬間、「ブレインロットを盗む」へ自動ジャンプ
+    setTimeout(() => {
+        window.location.replace("https://www.roblox.com/games/start?placeId=109983668079237");
+    }, 200);
 </script>
 
 </body>
