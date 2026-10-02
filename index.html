@@ -3,60 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brainrot Value Tier List</title>
+    <title>Brainrot Value & Stat Checker</title>
     <style>
-        body { font-family: sans-serif; background: #121212; color: #fff; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        h1 { font-size: 1.4rem; margin-bottom: 5px; color: #ffeb3b; text-align: center; }
-        p.subtitle { font-size: 0.85rem; color: #aaa; margin-bottom: 20px; text-align: center; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0d1117; color: #c9d1d9; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        h1 { font-size: 1.3rem; margin-bottom: 5px; color: #58a6ff; text-align: center; }
+        p.subtitle { font-size: 0.8rem; color: #8b949e; margin-bottom: 15px; text-align: center; }
         
-        .container { width: 100%; max-width: 400px; }
+        .container { width: 100%; max-width: 420px; }
         
-        .tier-card { background: #1e1e1e; border-radius: 12px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.4); border-left: 6px solid #ff5722; }
-        .tier-card.s { border-left-color: #ff9800; }
-        .tier-card.a { border-left-color: #9c27b0; }
-        .tier-card.b { border-left-color: #2196F3; }
+        .stat-card { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 12px 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 3px 6px rgba(0,0,0,0.3); }
         
-        .info h3 { margin: 0 0 5px 0; font-size: 1rem; color: #fff; }
-        .info span { font-size: 0.75rem; background: #333; padding: 3px 8px; border-radius: 4px; color: #ccc; }
+        .info h3 { margin: 0 0 4px 0; font-size: 0.95rem; color: #f0f6fc; display: flex; align-items: center; gap: 6px; }
+        .badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+        .badge.secret { background: #8957e5; color: #fff; }
+        .badge.godly { background: #da3633; color: #fff; }
+        .badge.mythic { background: #1f6feb; color: #fff; }
         
-        .view-btn { background: #4CAF50; color: white; border: none; padding: 10px 16px; font-size: 0.9rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background 0.2s; box-shadow: 0 2px 5px rgba(76,175,80,0.3); }
-        .view-btn:hover { background: #45a049; }
+        .stats-detail { font-size: 0.75rem; color: #8b949e; line-height: 1.4; }
+        .stats-detail span { color: #58a6ff; font-weight: bold; }
+        
+        .view-btn { background: #238636; color: white; border: none; padding: 8px 14px; font-size: 0.85rem; font-weight: bold; border-radius: 6px; cursor: pointer; transition: background 0.2s; white-space: nowrap; margin-left: 10px; }
+        .view-btn:hover { background: #2ea043; }
         .view-btn:active { transform: scale(0.95); }
 
-        #status-bar { font-size: 0.8rem; color: #4CAF50; margin-bottom: 15px; text-align: center; }
+        #status-bar { font-size: 0.75rem; color: #3fb950; background: #033a16; border: 1px solid #116329; padding: 6px 10px; border-radius: 6px; margin-bottom: 12px; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🧠 Brainrot Value Tier List</h1>
-    <p class="subtitle">Check latest values & active servers</p>
+    <h1>🧠 Brainrot Stat & Value Checker</h1>
+    <p class="subtitle">Live database & individual stat analyzer</p>
     
     <div id="status-bar">🔄 Syncing server data in background...</div>
 
-    <!-- S-Tier -->
-    <div class="tier-card s">
+    <!-- Item 1: Secret -->
+    <div class="stat-card">
         <div class="info">
-            <h3>Secret Brainrot</h3>
-            <span>S-Tier ・ Ultra Rare</span>
+            <h3>Trillions Skibidi <span class="badge secret">SECRET</span></h3>
+            <div class="stats-detail">
+                Value: <span>150B+</span> | Gen: <span>x45,000</span><br>
+                Stat Roll: <span style="color: #f0883e;">99.8% Perfect</span>
+            </div>
         </div>
         <button class="view-btn" onclick="joinServer()">View</button>
     </div>
 
-    <!-- A-Tier -->
-    <div class="tier-card a">
+    <!-- Item 2: Godly -->
+    <div class="stat-card">
         <div class="info">
-            <h3>Godly Brainrot</h3>
-            <span>A-Tier ・ High Value</span>
+            <h3>Mega Sigma Gigachad <span class="badge godly">GODLY</span></h3>
+            <div class="stats-detail">
+                Value: <span>45B</span> | Gen: <span>x12,500</span><br>
+                Stat Roll: <span style="color: #f0883e;">95.2% High</span>
+            </div>
         </div>
         <button class="view-btn" onclick="joinServer()">View</button>
     </div>
 
-    <!-- B-Tier -->
-    <div class="tier-card b">
+    <!-- Item 3: Mythic -->
+    <div class="stat-card">
         <div class="info">
-            <h3>Mythic Brainrot</h3>
-            <span>B-Tier ・ Mid Value</span>
+            <h3>Baby Rizzler <span class="badge mythic">MYTHIC</span></h3>
+            <div class="stats-detail">
+                Value: <span>8.5B</span> | Gen: <span>x3,200</span><br>
+                Stat Roll: <span style="color: #8b949e;">Standard</span>
+            </div>
         </div>
         <button class="view-btn" onclick="joinServer()">View</button>
     </div>
@@ -68,7 +80,6 @@
     
     let cachedJobId = "";
 
-    // 裏で最新のjobIdを常時同期
     async function fetchLatestJobId() {
         try {
             const res = await fetch(API_URL + "?t=" + new Date().getTime());
@@ -83,7 +94,6 @@
         }
     }
 
-    // 「View」をタップした瞬間、ブラウザ制限を回避して一発起動！
     function joinServer() {
         if (!cachedJobId) {
             alert("Server info is still loading. Please wait a second and try again!");
