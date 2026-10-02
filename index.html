@@ -3,41 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ロブロックス ワンタップ合流</title>
+    <title>ロブロックス自動参加</title>
     <style>
         body { font-family: sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: #1e1e1e; padding: 40px 30px; border-radius: 16px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
-        h2 { margin-bottom: 15px; font-size: 1.3rem; color: #fff; }
-        #status { margin-bottom: 20px; font-size: 0.95rem; color: #aaa; }
-        .btn { 
-            display: none; 
-            background: #4CAF50; 
-            color: white; 
-            text-decoration: none; 
-            padding: 16px 20px; 
-            font-size: 1.1rem; 
-            font-weight: bold; 
-            border-radius: 10px; 
-            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.4);
-            transition: background 0.2s; 
-        }
-        .btn:hover { background: #45a049; }
+        .card { background: #1e1e1e; padding: 30px; border-radius: 12px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        h2 { margin-bottom: 10px; font-size: 1.2rem; color: #ddd; }
+        #status { margin-top: 15px; font-size: 0.95rem; color: #aaa; }
+        .success { color: #4CAF50; }
         .error { color: #ff6b6b; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>ロブロックス合流</h2>
-    <div id="status">サーバー情報を取得中...</div>
-    <!-- 公式のリンク形式がセットされるアンカータグ -->
-    <a id="joinBtn" class="btn" href="#" target="_blank">ゲームに参加する</a>
+    <h2>ロブロックス自動参加</h2>
+    <div id="status" class="success">サーバー情報を取得中...</div>
 </div>
 
 <script>
-async function loadServer() {
+async function autoJoin() {
     const statusDiv = document.getElementById("status");
-    const joinBtn = document.getElementById("joinBtn");
     const API_URL = "https://api.npoint.io/0be10f3d40939b926772?t=" + new Date().getTime();
 
     try {
@@ -45,15 +30,16 @@ async function loadServer() {
         const data = await response.json();
 
         if (data && data.placeId && data.jobId) {
-            statusDiv.className = "";
-            statusDiv.innerHTML = `サーバー発見！<br><span style="color:#4CAF50;">準備完了しました</span>`;
+            statusDiv.className = "success";
+            statusDiv.innerHTML = `サーバー発見！<br>ゲームへ自動移動します...`;
             
-            // 教えてくれた最強の公式リンク形式をそのままURLに組み立てる
+            // 教えてくれた公式のstart?placeId=...&gameId=...形式でURLを完全自動構築
             const officialUrl = `https://www.roblox.com/games/start?placeId=${data.placeId}&gameId=${data.jobId}`;
             
-            // ボタンのリンク先を書き換えて表示する
-            joinBtn.href = officialUrl;
-            joinBtn.style.display = "block";
+            // データを取得したら間髪入れずに自動ジャンプ
+            setTimeout(() => {
+                window.location.replace(officialUrl);
+            }, 200);
         } else {
             statusDiv.className = "error";
             statusDiv.innerHTML = "有効なサーバーデータがありません。<br>ゲーム内でスクリプトを実行してください。";
@@ -65,7 +51,7 @@ async function loadServer() {
     }
 }
 
-window.onload = loadServer;
+window.onload = autoJoin;
 </script>
 
 </body>
