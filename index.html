@@ -3,26 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ロブロックス自動合流</title>
+    <title>ロブロックス ワンタップ自動参加</title>
     <style>
         body { font-family: sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: #1e1e1e; padding: 30px; border-radius: 12px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        h2 { margin-bottom: 10px; font-size: 1.2rem; color: #ddd; }
-        #status { margin-top: 15px; font-size: 0.95rem; color: #aaa; }
-        .success { color: #4CAF50; }
+        .card { background: #1e1e1e; padding: 40px 30px; border-radius: 16px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
+        h2 { margin-bottom: 15px; font-size: 1.3rem; color: #fff; }
+        #status { margin-bottom: 20px; font-size: 0.95rem; color: #aaa; }
+        .btn { background: #4CAF50; color: white; border: none; padding: 14px 20px; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; transition: background 0.2s; }
+        .btn:hover { background: #45a049; }
         .error { color: #ff6b6b; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>ロブロックス自動合流</h2>
-    <div id="status" class="success">サーバーを確認中...</div>
+    <h2>ロブロックス自動参加</h2>
+    <div id="status">サーバー情報を確認中...</div>
+    <!-- 内部で自動的にクリックさせるボタン -->
+    <button class="btn" id="joinBtn" style="display:none;" onclick="joinGame()">ゲームに参加する</button>
 </div>
 
 <script>
-async function autoJoin() {
+let targetUrl = "";
+
+async function fetchServer() {
     const statusDiv = document.getElementById("status");
+    const joinBtn = document.getElementById("joinBtn");
     const API_URL = "https://api.npoint.io/0be10f3d40939b926772?t=" + new Date().getTime();
 
     try {
@@ -30,14 +36,14 @@ async function autoJoin() {
         const data = await response.json();
 
         if (data && data.placeId && data.jobId) {
-            statusDiv.className = "success";
-            statusDiv.innerHTML = `サーバー発見！<br>自動で移動しています...`;
+            statusDiv.className = "";
+            statusDiv.innerHTML = `サーバー発見！<br><span style="color:#4CAF50;">自動で接続しています...</span>`;
             
-            const joinUrl = `https://www.roblox.com/games/start?placeId=${data.placeId}&gameId=${data.jobId}`;
+            targetUrl = `https://www.roblox.com/games/start?placeId=${data.placeId}&gameId=${data.jobId}`;
             
-            // 取得成功したら間髪入れずに自動ジャンプ
+            // データを取得したら、プログラム側から瞬時にボタンのクリックを自動実行する
             setTimeout(() => {
-                window.location.href = joinUrl;
+                joinBtn.click();
             }, 300);
         } else {
             statusDiv.className = "error";
@@ -50,7 +56,13 @@ async function autoJoin() {
     }
 }
 
-window.onload = autoJoin;
+function joinGame() {
+    if (targetUrl) {
+        window.location.href = targetUrl;
+    }
+}
+
+window.onload = fetchServer;
 </script>
 
 </body>
