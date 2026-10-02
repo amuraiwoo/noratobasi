@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pom00242 Auto Joiner</title>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #1e1e1e; padding: 30px; border-radius: 12px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        h2 { margin-bottom: 10px; font-size: 1.2rem; color: #ddd; }
+        .target { color: #4da6ff; font-weight: bold; margin-bottom: 20px; font-size: 1.1rem; }
+        #status { margin-top: 15px; font-size: 0.95rem; color: #aaa; }
+        .error { color: #ff6b6b; }
+        .success { color: #4CAF50; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>ロブロックス自動合流</h2>
+    <div class="target">pom00242 を追跡中...</div>
+    <div id="status">サーバーを確認しています...</div>
+</div>
+
+<script>
+async function autoJoin() {
+    const statusDiv = document.getElementById("status");
+
+    try {
+        // 裏側のAPIを自動で叩く
+        const response = await fetch('/api/track');
+        const data = await response.json();
+
+        if (data.success && data.joinUrl) {
+            statusDiv.className = "success";
+            statusDiv.innerHTML = "サーバー発見！ロブロックスを起動します...";
+            
+            // 0.5秒後に自動でリンクへジャンプ（アプリが立ち上がる）
+            setTimeout(() => {
+                window.location.href = data.joinUrl;
+            }, 500);
+        } else {
+            statusDiv.className = "error";
+            statusDiv.innerHTML = data.message || "現在ゲームに参加していません。";
+        }
+    } catch (error) {
+        statusDiv.className = "error";
+        statusDiv.innerHTML = "通信エラーが発生しました。";
+        console.error(error);
+    }
+}
+
+// ページを開いた瞬間に自動で走る
+window.onload = autoJoin;
+</script>
+
+</body>
+</html>
