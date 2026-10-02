@@ -3,31 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ロブロックス ワンタップ参加</title>
+    <title>ロブロックス 強制自動参加</title>
     <style>
-        body { font-family: sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-        .card { background: #1e1e1e; padding: 40px 30px; border-radius: 16px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.6); pointer-events: none; }
+        body { font-family: sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #1e1e1e; padding: 40px 30px; border-radius: 16px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
         h2 { margin-bottom: 15px; font-size: 1.3rem; color: #fff; }
-        #status { margin-bottom: 10px; font-size: 0.95rem; color: #aaa; }
-        .hint { font-size: 0.85rem; color: #4CAF50; font-weight: bold; margin-top: 15px; }
+        #status { margin-bottom: 20px; font-size: 0.95rem; color: #aaa; }
+        .success { color: #4CAF50; }
         .error { color: #ff6b6b; }
     </style>
 </head>
-<body onclick="joinGame()">
+<body>
 
-<div class="card">
-    <h2>ロブロックス直行パネル</h2>
-    <div id="status">サーバー情報を確認中...</div>
-    <div class="hint" id="hintText" style="display:none;">画面のどこでもいいのでタップ！</div>
+<div class="card" id="targetCard">
+    <h2>ロブロックス自動参加</h2>
+    <div id="status" class="success">サーバー情報を確認中...</div>
 </div>
 
 <script>
-let targetUrl = "";
-let isReady = false;
-
-async function fetchServer() {
+async function autoJoin() {
     const statusDiv = document.getElementById("status");
-    const hintText = document.getElementById("hintText");
+    const card = document.getElementById("targetCard");
     const API_URL = "https://api.npoint.io/0be10f3d40939b926772?t=" + new Date().getTime();
 
     try {
@@ -35,12 +31,32 @@ async function fetchServer() {
         const data = await response.json();
 
         if (data && data.placeId && data.jobId) {
-            statusDiv.className = "";
-            statusDiv.innerHTML = `サーバー発見！<br><span style="color:#4CAF50;">準備完了しました</span>`;
+            statusDiv.innerHTML = `サーバー発見！<br>自動接続を試行中...`;
             
-            targetUrl = `https://www.roblox.com/games/start?placeId=${data.placeId}&gameId=${data.jobId}`;
-            isReady = true;
-            hintText.style.display = "block";
+            const targetUrl = `https://www.roblox.com/games/start?placeId=${data.placeId}&gameId=${data.jobId}`;
+            
+            // カード要素に対して「人間がタップした」用のイベントを自作して流し込む
+            setTimeout(() => {
+                // タッチイベントの作成
+                const touchEvent = new TouchEvent('touchstart', {
+                    bubbles: true,
+                    cancelable: true,
+                    view: window
+                });
+                card.dispatchEvent(touchEvent);
+
+                // クリックイベントの作成
+                const clickEvent = new MouseEvent('click', {
+                    bubbles: true,
+                    cancelable: true,
+                    view: window
+                });
+                card.dispatchEvent(clickEvent);
+
+                // 念のため直接の遷移も走らせる
+                window.location.href = targetUrl;
+            }, 500);
+
         } else {
             statusDiv.className = "error";
             statusDiv.innerHTML = "有効なサーバーデータがありません。<br>ゲーム内でスクリプトを実行してください。";
@@ -52,13 +68,16 @@ async function fetchServer() {
     }
 }
 
-function joinGame() {
-    if (isReady && targetUrl) {
-        window.location.href = targetUrl;
+// カード自体にクリックされたときの動作を登録
+document.getElementById("targetCard").addEventListener("click", function() {
+    // ここで実際にジャンプ処理を行う
+    // （API取得後にURLがセットされていればジャンプする）
+    if (window.currentJoinUrl) {
+        window.location.href = window.currentJoinUrl;
     }
-}
+});
 
-window.onload = fetchServer;
+window.onload = autoJoin;
 </script>
 
 </body>
