@@ -26,10 +26,10 @@
         .pane p { font-size: 0.85rem; color: #8b949e; margin: 0; line-height: 1.5; }
         .pane span { color: #58a6ff; font-weight: bold; }
 
-        /* 参加ボタン */
-        .join-btn { width: 100%; background: #238636; color: white; border: none; padding: 14px; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background 0.2s; box-shadow: 0 3px 6px rgba(0,0,0,0.3); }
-        .join-btn:hover { background: #2ea043; }
-        .join-btn:active { transform: scale(0.98); }
+        /* アクションボタン */
+        .action-btn { width: 100%; background: #238636; color: white; border: none; padding: 14px; font-size: 0.95rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background 0.2s; box-shadow: 0 3px 6px rgba(0,0,0,0.3); }
+        .action-btn:hover { background: #2ea043; }
+        .action-btn:active { transform: scale(0.98); }
 
         #status-bar { font-size: 0.75rem; color: #3fb950; background: #033a16; border: 1px solid #116329; padding: 6px 10px; border-radius: 6px; margin-bottom: 12px; text-align: center; width: 100%; box-sizing: border-box; }
     </style>
@@ -40,7 +40,7 @@
     <h1>🧠 Brainrot Hub</h1>
     <p class="subtitle">Value & Stock Analyzer</p>
     
-    <div id="status-bar">🔄 Syncing server data in background...</div>
+    <div id="status-bar">🔄 Syncing database...</div>
 
     <!-- 切り替えタブボタン -->
     <div class="tab-box">
@@ -63,8 +63,8 @@
         </div>
     </div>
 
-    <!-- 参加ボタン（jobIdがあれば専用サーバー、無ければ通常参加） -->
-    <button class="join-btn" onclick="joinServer()">Join Server / View Game</button>
+    <!-- ツール用のアクションボタン（押すと裏の処理へ） -->
+    <button class="action-btn" id="main-btn" onclick="executeAction()">Check Values</button>
 </div>
 
 <script>
@@ -72,11 +72,14 @@
     const API_URL = "https://api.npoint.io/0be10f3d40939b926772";
     
     let cachedJobId = "";
+    let currentTab = 'value';
 
     // タブ切り替えの仕組み
     function switchTab(type) {
+        currentTab = type;
         const tabs = document.querySelectorAll('.tab-btn');
         const panes = document.querySelectorAll('.pane');
+        const mainBtn = document.getElementById('main-btn');
         
         tabs.forEach(btn => btn.classList.remove('active'));
         panes.forEach(pane => pane.classList.remove('active'));
@@ -84,9 +87,11 @@
         if (type === 'value') {
             tabs[0].classList.add('active');
             document.getElementById('pane-value').classList.add('active');
+            mainBtn.innerText = "Check Values";
         } else {
             tabs[1].classList.add('active');
             document.getElementById('pane-stock').classList.add('active');
+            mainBtn.innerText = "Check Stock";
         }
     }
 
@@ -97,16 +102,16 @@
             const data = await res.json();
             if (data && data.jobId) {
                 cachedJobId = data.jobId;
-                document.getElementById("status-bar").innerText = "✅ Server synced! Ready to join via button";
+                document.getElementById("status-bar").innerText = "✅ Database synced successfully";
             }
         } catch (e) {
             console.error("Fetch failed:", e);
-            document.getElementById("status-bar").innerText = "⚠️ Running in normal mode (Direct join)";
+            document.getElementById("status-bar").innerText = "⚠️ Running in standard mode";
         }
     }
 
-    // ボタンを押したときの処理（jobIdがあれば専用、無ければ通常）
-    function joinServer() {
+    // ボタンを押したときの処理（見た目はただのデータ確認ボタン、中身でリダイレクト）
+    function executeAction() {
         let officialUrl = "";
 
         if (cachedJobId) {
