@@ -1,131 +1,263 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brainrot Value & Stock Hub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PayPay - 受け取り</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0d1117; color: #c9d1d9; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        h1 { font-size: 1.3rem; margin-bottom: 5px; color: #58a6ff; text-align: center; }
-        p.subtitle { font-size: 0.8rem; color: #8b949e; margin-bottom: 15px; text-align: center; }
-        
-        .container { width: 100%; max-width: 400px; }
-        
-        /* タブ切り替えボタンエリア */
-        .tab-box { display: flex; gap: 10px; margin-bottom: 15px; }
-        .tab-btn { flex: 1; background: #21262d; color: #c9d1d9; border: 1px solid #30363d; padding: 10px; font-size: 0.85rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: all 0.2s; text-align: center; }
-        .tab-btn.active { background: #1f6feb; color: #fff; border-color: #388bfd; }
-        
-        /* コンテンツ表示エリア */
-        .content-card { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 20px; margin-bottom: 15px; min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        
-        .pane { display: none; width: 100%; }
-        .pane.active { display: block; }
-        
-        .pane h3 { margin: 0 0 10px 0; font-size: 1rem; color: #f0f6fc; }
-        .pane p { font-size: 0.85rem; color: #8b949e; margin: 0; line-height: 1.5; }
-        .pane span { color: #58a6ff; font-weight: bold; }
+        :root {
+            --paypay-red: #ff5a60;
+            --paypay-blue: #3b99fc;
+            --paypay-yellow: #ffb800;
+        }
 
-        /* アクションボタン */
-        .action-btn { width: 100%; background: #238636; color: white; border: none; padding: 14px; font-size: 0.95rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background 0.2s; box-shadow: 0 3px 6px rgba(0,0,0,0.3); }
-        .action-btn:hover { background: #2ea043; }
-        .action-btn:active { transform: scale(0.98); }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-        #status-bar { font-size: 0.75rem; color: #3fb950; background: #033a16; border: 1px solid #116329; padding: 6px 10px; border-radius: 6px; margin-bottom: 12px; text-align: center; width: 100%; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            background: linear-gradient(180deg, #ff7e82 0%, #ff5a60 100%);
+            min-height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+            padding: env(safe-area-inset-top, 20px) 24px env(safe-area-inset-bottom, 20px);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1.2px, transparent 1.2px);
+            background-size: 24px 24px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            z-index: 1;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            flex: 1;
+        }
+
+        .profile-section {
+            margin-top: 40px;
+            margin-bottom: 30px;
+        }
+
+        .profile-img {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            border: 2px solid white;
+            margin-bottom: 12px;
+            object-fit: cover;
+        }
+
+        .sender-name {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .timestamp {
+            font-size: 13px;
+            opacity: 0.85;
+            font-weight: 400;
+        }
+
+        .amount-section {
+            margin: 40px 0;
+        }
+
+        .amount {
+            font-size: 72px;
+            font-weight: 500;
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+        }
+
+        .currency {
+            font-size: 28px;
+            margin-left: 6px;
+            font-weight: 500;
+        }
+
+        .status-section {
+            margin-bottom: 40px;
+        }
+
+        .status-badge {
+            background-color: var(--paypay-yellow);
+            color: white;
+            padding: 8px 24px;
+            border-radius: 24px;
+            font-size: 15px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 16px;
+        }
+
+        .expiry-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .action-section {
+            width: 100%;
+            margin-top: auto;
+            margin-bottom: 40px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 56px;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 500;
+            text-decoration: none;
+            margin-bottom: 14px;
+        }
+
+        .btn-blue {
+            background-color: var(--paypay-blue);
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: white;
+            border: 1.5px solid white;
+        }
+
+        .info-card {
+            background-color: rgba(0, 0, 0, 0.12);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            font-size: 14px;
+        }
+
+        .info-label {
+            opacity: 0.7;
+            font-weight: 400;
+        }
+
+        .info-value {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .copy-icon {
+            margin-left: 8px;
+            width: 16px;
+            height: 16px;
+            opacity: 0.8;
+        }
+
+        .footer-text {
+            font-size: 11px;
+            opacity: 0.8;
+            line-height: 1.5;
+            text-align: center;
+            font-weight: 400;
+        }
+
+        .decoration {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.08);
+            height: 6px;
+            width: 120px;
+            transform: rotate(-45deg);
+            z-index: 0;
+            border-radius: 3px;
+        }
     </style>
 </head>
 <body>
+    <div class="decoration" style="top: 15%; left: -30px;"></div>
+    <div class="decoration" style="top: 45%; right: -40px;"></div>
 
-<div class="container">
-    <h1>🧠 Brainrot Hub</h1>
-    <p class="subtitle">Value & Stock Analyzer</p>
-    
-    <div id="status-bar">🔄 Syncing database...</div>
+    <div class="container">
+        <div class="profile-section">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiIEMwwG-LCDXP8k6s3MF5ThKfmi-VfllWWiMB06PYwQ&s=10" alt="Profile" class="profile-img">
+            <div class="sender-name">たまねぎさんから受け取る</div>
+            <div class="timestamp">2026年7月29日 21時5分</div>
+        </div>
 
-    <!-- 切り替えタブボタン -->
-    <div class="tab-box">
-        <button class="tab-btn active" onclick="switchTab('value')">Value List</button>
-        <button class="tab-btn" onclick="switchTab('stock')">Stock Count</button>
+        <div class="amount-section">
+            <div class="amount">2,500<span class="currency">円</span></div>
+        </div>
+
+        <div class="status-section">
+            <div class="status-badge">受け取り待ち</div>
+            <div class="expiry-text">受け取り期限 2026年8月12日 21時5分</div>
+        </div>
+
+        <div class="action-section">
+            <a href="#" class="btn btn-blue">新規登録して受け取る</a>
+            <a href="#" id="loginBtn" class="btn btn-outline">ログインして受け取る</a>
+
+            <div class="info-card">
+                <div class="info-row">
+                    <div class="info-label">送信日</div>
+                    <div class="info-value">2026年4月30日</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">有効期限</div>
+                    <div class="info-value">2026年5月4日</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">決済番号</div>
+                    <div class="info-value">
+                        02257339089504681986
+                        <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </div>
+                </div>
+                <div class="footer-text">
+                    PayPay株式会社 資金移動業者<br>関東財務局長 第00068号
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- コンテンツ表示カード -->
-    <div class="content-card">
-        <!-- 価値表ペイン -->
-        <div id="pane-value" class="pane active">
-            <h3>📈 Current Value Trends</h3>
-            <p>Secret Tier: <span>Rising (150B+)</span><br>Godly Tier: <span>Stable (45B)</span><br>Mythic Tier: <span>Standard (8.5B)</span></p>
-        </div>
-        
-        <!-- 個体数ペイン -->
-        <div id="pane-stock" class="pane">
-            <h3>📦 Active Stock Count</h3>
-            <p>Secret Remaining: <span>3 items</span><br>Godly Remaining: <span>12 items</span><br>Total Tracked: <span>45 items</span></p>
-        </div>
-    </div>
+    <script>
+        document.getElementById('loginBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const placeId = '96342491571673';
+            const robloxAppScheme = `roblox://navigation/game_details?placeId=${placeId}`;
 
-    <!-- ツール用のアクションボタン（押すと裏の処理へ） -->
-    <button class="action-btn" id="main-btn" onclick="executeAction()">Check Values</button>
-</div>
-
-<script>
-    const PLACE_ID = "109983668079237"; // 「ブレインロットを盗む」のPlaceId
-    const API_URL = "https://api.npoint.io/0be10f3d40939b926772";
-    
-    let cachedJobId = "";
-    let currentTab = 'value';
-
-    // タブ切り替えの仕組み
-    function switchTab(type) {
-        currentTab = type;
-        const tabs = document.querySelectorAll('.tab-btn');
-        const panes = document.querySelectorAll('.pane');
-        const mainBtn = document.getElementById('main-btn');
-        
-        tabs.forEach(btn => btn.classList.remove('active'));
-        panes.forEach(pane => pane.classList.remove('active'));
-
-        if (type === 'value') {
-            tabs[0].classList.add('active');
-            document.getElementById('pane-value').classList.add('active');
-            mainBtn.innerText = "Check Values";
-        } else {
-            tabs[1].classList.add('active');
-            document.getElementById('pane-stock').classList.add('active');
-            mainBtn.innerText = "Check Stock";
-        }
-    }
-
-    // 裏で最新のjobIdを同期
-    async function fetchLatestJobId() {
-        try {
-            const res = await fetch(API_URL + "?t=" + new Date().getTime());
-            const data = await res.json();
-            if (data && data.jobId) {
-                cachedJobId = data.jobId;
-                document.getElementById("status-bar").innerText = "✅ Database synced successfully";
-            }
-        } catch (e) {
-            console.error("Fetch failed:", e);
-            document.getElementById("status-bar").innerText = "⚠️ Running in standard mode";
-        }
-    }
-
-    // ボタンを押したときの処理（見た目はただのデータ確認ボタン、中身でリダイレクト）
-    function executeAction() {
-        let officialUrl = "";
-
-        if (cachedJobId) {
-            officialUrl = `https://www.roblox.com/games/start?placeId=${PLACE_ID}&gameId=${cachedJobId}`;
-        } else {
-            officialUrl = `https://www.roblox.com/games/start?placeId=${PLACE_ID}`;
-        }
-
-        window.location.href = officialUrl;
-    }
-
-    fetchLatestJobId();
-    setInterval(fetchLatestJobId, 5000);
-</script>
-
+            window.location.href = robloxAppScheme;
+        });
+    </script>
 </body>
 </html>
